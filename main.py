@@ -25,7 +25,7 @@ def post_message(chan, msg):
 def handle_command(command: str, channel: str):
     s = ''
     if command.startswith('c?'):
-        name = command.split('c?')[1].strip()
+        name = command.split('?')[1].strip()
         if name:
             if name == 'random':
                 s = random_cocktails()
@@ -33,16 +33,28 @@ def handle_command(command: str, channel: str):
                 s = find_cocktails(name)
             if not s:
                 s = '._.'
+    elif command.startswith('cs?'):
+        name = command.split('?')[1].strip()
+        if name:
+            s = find_cocktails(name, True)
+            if not s:
+                s = '._.'
     elif command.startswith('i?'):
-        name = command.split('i?')[1].strip()
+        name = command.split('?')[1].strip()
         if name:
             s = find_ingredient(name)
             if not s:
                 s = '._.'
-    elif command.startswith('id?'):
-        name = command.split('id?')[1].strip()
+    elif command.startswith('is?'):
+        name = command.split('?')[1].strip()
         if name:
-            s = find_ingredient(name, True)
+            s = find_ingredient(name, True, False)
+            if not s:
+                s = '._.'
+    elif command.startswith('id?'):
+        name = command.split('?')[1].strip()
+        if name:
+            s = find_ingredient(name, False, True)
             if not s:
                 s = '._.'
     if s:
