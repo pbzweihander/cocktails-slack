@@ -26,22 +26,25 @@ def handle_command(command: str, channel: str):
     s = ''
     if command.startswith('c?'):
         name = command.split('c?')[1].strip()
-        if name == 'random':
-            s = random_cocktails()
-        else:
-            s = find_cocktails(name)
-        if not s:
-            s = '._.'
+        if name:
+            if name == 'random':
+                s = random_cocktails()
+            else:
+                s = find_cocktails(name)
+            if not s:
+                s = '._.'
     elif command.startswith('i?'):
         name = command.split('i?')[1].strip()
-        s = find_ingredient(name)
-        if not s:
-            s = '._.'
+        if name:
+            s = find_ingredient(name)
+            if not s:
+                s = '._.'
     elif command.startswith('id?'):
         name = command.split('id?')[1].strip()
-        s = find_ingredient(name, True)
-        if not s:
-            s = '._.'
+        if name:
+            s = find_ingredient(name, True)
+            if not s:
+                s = '._.'
     if s:
         post_message(channel, s)
 
