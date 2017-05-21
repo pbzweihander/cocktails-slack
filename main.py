@@ -11,31 +11,39 @@ slack_client = SlackClient(open('token.key', 'r').readline().strip())
 
 def parse_slack_output(output):
     if output and len(output) > 0:
-        print(output)
         for o in output:
             if o and 'text' in o and o.get('user') != BOT_ID:
                 return o.get('text').strip(), o.get('channel')
     return None, None
 
 
+def post_message(chan, msg):
+    print("Post : %s" % msg)
+    slack_client.api_call('chat.postMessage', channel=chan, text=msg, as_user=True)
+
+
 def handle_command(command: str, channel: str):
+    s = ''
     if command.startswith('c?'):
         name = command.split('c?')[1].strip()
         if name == 'random':
             s = random_cocktails()
         else:
             s = find_cocktails(name)
-        if s:
-            slack_client.api_call('chat.postMessage', channel=channel, text=s, as_user=True)
-        else:
-            slack_client.api_call('chat.postMessage', channel=channel, text='._.', as_user=True)
-    if command.startswith('i?'):
+        if not s:
+            s = '._.'
+    elif command.startswith('i?'):
         name = command.split('i?')[1].strip()
         s = find_ingredient(name)
-        if s:
-            slack_client.api_call('chat.postMessage', channel=channel, text=s, as_user=True)
-        else:
-            slack_client.api_call('chat.postMessage', channel=channel, text='._.', as_user=True)
+        if not s:
+            s = '._.'
+    elif command.startswith('id?'):
+        name = command.split('id?')[1].strip()
+        s = find_ingredient(name, True)
+        if not s:
+            s = '._.'
+    if s:
+        post_message(channel, s)
 
 
 def main():
