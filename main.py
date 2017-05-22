@@ -36,7 +36,13 @@ def handle_command(command: str, channel: str):
     elif command.startswith('cs?'):
         name = command.split('?')[1].strip()
         if name:
-            s = find_cocktails(name, True)
+            s = find_cocktails(name, True, False)
+            if not s:
+                s = '._.'
+    elif command.startswith('cd?'):
+        name = command.split('?')[1].strip()
+        if name:
+            s = find_cocktails(name, False, True)
             if not s:
                 s = '._.'
     elif command.startswith('i?'):
