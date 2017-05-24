@@ -1,25 +1,11 @@
 
-from slackclient import SlackClient
+from slack import Slack
 from cocktaildb import *
 import time
 
 BOT_NAME = "bartender-bot"
-BOT_ID = ''
 
-slack_client = SlackClient(open('token.key', 'r').readline().strip())
-
-
-def parse_slack_output(output):
-    if output and len(output) > 0:
-        for o in output:
-            if o and 'text' in o and o.get('user') != BOT_ID:
-                return o.get('text').strip(), o.get('channel')
-    return None, None
-
-
-def post_message(chan, msg):
-    print("Post : %s" % msg)
-    slack_client.api_call('chat.postMessage', channel=chan, text=msg, as_user=True)
+slack = Slack(open('token.key', 'r').readline().strip(), BOT_NAME)
 
 
 def handle_command(command: str, channel: str):
@@ -64,27 +50,19 @@ def handle_command(command: str, channel: str):
             if not s:
                 s = '._.'
     if s:
-        post_message(channel, s)
+        slack.post_message(channel, s)
 
 
 def main():
-    global BOT_ID
-    api_call = slack_client.api_call("users.list")
-    if api_call.get('ok'):
-        users = api_call.get('members')
-        for user in users:
-            if 'name' in user and user.get('name') == BOT_NAME:
-                BOT_ID = user.get('id')
-                break
-    print('Bot ID Retrieved')
-
-    if slack_client.rtm_connect():
-        print("Bot connected")
+    if slack.connect():
+        print("Bot Connected")
         while True:
-            command, channel = parse_slack_output(slack_client.rtm_read())
-            if command and channel:
-                print("Received at %s : %s" % (channel, command))
-                handle_command(command, channel)
+            d = slack.read()
+            if d and d.get('id') != slack.id:
+                chan = d.get('channel')
+                msg = d.get('text')
+                print("Received at %s : %s" % (chan, msg))
+                handle_command(msg, chan)
                 time.sleep(1)
     else:
         print("Connection Failed")
